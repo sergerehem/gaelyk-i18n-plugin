@@ -3,6 +3,7 @@ Gaelyk i18n Plugin
 
 The plugin implements an easy way to work with Java [Properties](http://docs.oracle.com/javase/tutorial/essential/environment/properties.html)  files in your [Gaelyk](gaelyk.appspot.com) application.
 It's also very useful to work with [internationalization](http://www.oracle.com/technetwork/java/javase/tech/intl-139810.html).
+The plugin was successfuly tested with Gaelyk version 1.2.
 
 ## Installation
 
