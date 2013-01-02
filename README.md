@@ -7,16 +7,16 @@ The plugin was successfuly tested with Gaelyk version 1.2.
 
 ## Installation
 
-To use the plugin just donwload the [gaelyk-i18n-plugin-0.1.jar](https://github.com/sergerehem/gaelyk-i18n-plugin/blob/master/downloads/gaelyk-i18n-plugin-0.1.jar?raw=true) 
+To use the plugin just donwload the [gaelyk-i18n-plugin-0.2.jar](https://github.com/sergerehem/gaelyk-i18n-plugin/blob/master/downloads/gaelyk-i18n-plugin-0.2.jar?raw=true) 
 and put it in your `WEB-INF/lib/` folder in your Gaelyk application extract the distribution into your project directory.
 
-Run your app using  `gradlew gaeRun` and you should see lines like that in the console:
+
 
 ```
 14/06/2012 13:23:44 gaelyk.plugins.I18nPlugin
 INFO: Gaelyk i18n Plugin Registered!
 14/06/2012 13:23:44 gaelyk.plugins.I18nPlugin
-INFO: Using Config file: true. Use Browser locale: true. Use Memcache: true
+INFO: Using Config file: true.
 ```
 
 ## Usage
@@ -44,6 +44,12 @@ congrats="Congratulations {0}! Your plugin is running!"
 </html>
 ```
 
+You can change locale manually using session "locale' attribute
+
+If session does not contain locale attribute, the plugin always using the request locale
+
+The plugin searches properties file in the standard i18n order - if the locale is "he_IL" it will first look for "messages_he_IL.properties", if it does not exists will search for "messages_he.properties" and then for "messages.properties"
+
 You can copy samples files to your Gaelyk app from [here](https://github.com/sergerehem/gaelyk-i18n-plugin/tree/master/usage/WEB-INF).
 
 ### Configuration
@@ -54,8 +60,6 @@ file in the `WEB-INF/i18n` folder
 You can also create a `i18nConfig.groovy` file in `WEB-INF/` folder and configure those optional variables:
 * `basePath`: the base path for your `.properties` files. Default is `"WEB-INF/i18n"`.
 * `baseName`: the base name for your `.properties` files. Default is `"messages"`.
-* `defaultLocale`: the default [locale](http://java.sun.com/developer/technicalArticles/J2SE/locale/). Default is `"en_US"`.
-* `useBrowserLocale`: set true when you want to internationalize you app using current browser locale. Defaut is `false`.
-* `useMemcache`: use this to store your .properties files in [GAE Memcache](https://developers.google.com/appengine/docs/java/memcache/overview), avoiding disk reading in each request. Works only when `useBrowserLocale` is true. Default is `true`.
+* `messagesEncoding`: by default is used the server operationg system encoding
 
-TIP: During development time, work with `useMemcache=false`, so you can se any changes without reestart your app. Remember put `useMemcache=true` (or just remove this entry) before deploy to Google App Engine.
+TIP: After version upgrade, clean your memcache using app engine console
