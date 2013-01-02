@@ -7,7 +7,7 @@ The plugin was successfuly tested with Gaelyk version 1.2.
 
 ## Installation
 
-To use the plugin just donwload the [gaelyk-i18n-plugin-0.1.jar](http://cloud.github.com/downloads/sergerehem/gaelyk-i18n-plugin/gaelyk-i18n-plugin-0.1.jar) 
+To use the plugin just donwload the [gaelyk-i18n-plugin-0.1.jar](https://github.com/sergerehem/gaelyk-i18n-plugin/blob/master/downloads/gaelyk-i18n-plugin-0.1.jar?raw=true) 
 and put it in your `WEB-INF/lib/` folder in your Gaelyk application extract the distribution into your project directory.
 
 Run your app using  `gradlew gaeRun` and you should see lines like that in the console:
