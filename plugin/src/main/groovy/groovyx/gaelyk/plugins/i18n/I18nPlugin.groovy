@@ -11,13 +11,12 @@ class I18nPlugin extends PluginBaseScript {
     final static String DEFAULT_LOCALE = ""
     final static boolean DEFAULT_USE_BROWSER_LOCALE = false
     final static boolean DEFAULT_USE_MEMCACHE = true
-    
+
     String basePath = I18nPlugin.DEFAULT_BASE_PATH
     String baseName = I18nPlugin.DEFAULT_BASE_NAME
-    String defaultLocale = I18nPlugin.DEFAULT_LOCALE
-    boolean useBrowserLocale = I18nPlugin.DEFAULT_USE_BROWSER_LOCALE
-    boolean useMemcache = I18nPlugin.DEFAULT_USE_MEMCACHE
-    
+    String messagesEncoding
+
+
     boolean loadConfigVars(String configFileName = CONFIG_FILE) {
         try {
             config = new ConfigSlurper().parse(new File(configFileName).toURL())
@@ -27,57 +26,75 @@ class I18nPlugin extends PluginBaseScript {
             if (config.containsKey('baseName')) {
                 baseName = config.baseName
             }
-            if (config.containsKey('defaultLocale')) {
-                defaultLocale = config.defaultLocale
+
+            if (config.containsKey('messagesEncoding')) {
+                messagesEncoding = config.messagesEncoding
             }
-            if (config.containsKey('useBrowserLocale')) {
-                useBrowserLocale = config.useBrowserLocale
-            }
-            if (config.containsKey('useMemcache')) {
-                useMemcache = config.useMemcache
-            }            
+
             return true
-        } catch(FileNotFoundException e) {
+        } catch (FileNotFoundException e) {
             println "CONFIG NOT FOUND"
         }
         return false
     }
-    
-    def loadBundle(String bundleFileName) {
-        new SerializablePropertyResourceBundle(
-            new PropertyResourceBundle(
-                new FileReader(bundleFileName)))
+
+    def loadBundle(String locale) {
+        def path = new File("$basePath/${baseName}${DEFAULT_EXT}")
+
+        if (locale != null) {
+            path = new File("$basePath/${baseName}_$locale${DEFAULT_EXT}")
+            if (!path.exists()) {
+                if (locale.contains("_")) {
+                    def langLocale = locale.substring(0, locale.indexOf("_"))
+                    path = new File("$basePath/${baseName}_$langLocale${DEFAULT_EXT}")
+                    if (!path.exists()) {
+                        path = new File("$basePath/${baseName}${DEFAULT_EXT}")
+                    }
+                }
+                else {
+                    path = new File("$basePath/${baseName}${DEFAULT_EXT}")
+                }
+            }
+        }
+
+        Reader reader
+        if (messagesEncoding) {
+            reader = new InputStreamReader(new FileInputStream(path), messagesEncoding)
+        }
+        else {
+            reader = new FileReader(path)
+        }
+        return new SerializablePropertyResourceBundle(new PropertyResourceBundle(reader))
     }
-    
+
     def run() {
         boolean configFileFound = loadConfigVars()
-        
-        log.info "Gaelyk i18n Plugin Registered!"
-        log.info "Using Config file: $configFileFound. Use Browser locale: $useBrowserLocale. Use Memcache: $useMemcache"
 
-        def underscore = defaultLocale ? "_" : ""
-        String bundleFileName = "$basePath/${baseName}${underscore}${defaultLocale}${DEFAULT_EXT}"
+        log.info "Gaelyk i18n Plugin Registered!"
+        log.info "Using Config file: $configFileFound. "
+
 
         binding {
-                i18n = loadBundle(bundleFileName)
+
         }
 
         before {
-            if(this.useBrowserLocale) {
-                bundleFileName = "${this.basePath}/${this.baseName}_${request.locale}${DEFAULT_EXT}"
-                if (this.useMemcache) {
-                    if  (request.locale in this.memcache) {
-                        binding.i18n = this.memcache[request.locale]
-                    } else {
-                        bundle = loadBundle(bundleFileName)
-                        this.memcache.put(request.locale, bundle)
-                        binding.i18n = bundle
-                    }                
-                } else {
-                    binding.i18n = loadBundle(bundleFileName)                
-                }
+
+            def locale = request.getSession().getAttribute("locale")
+            if (locale == null) {
+                locale = request.locale.toString()
             }
-        }   
+
+            if (locale in this.memcache) {
+                binding.i18n = this.memcache[locale]
+            } else {
+                bundle = loadBundle(locale)
+                this.memcache.put(locale, bundle)
+                binding.i18n = bundle
+            }
+
+        }
 
     }
+
 }

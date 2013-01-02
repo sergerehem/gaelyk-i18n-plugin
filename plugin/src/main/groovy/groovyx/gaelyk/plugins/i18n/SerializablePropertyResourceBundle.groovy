@@ -13,36 +13,29 @@ import java.util.List
  *
  * @author Serge Rehem
  */
-class SerializablePropertyResourceBundle extends Properties implements Serializable {
+class SerializablePropertyResourceBundle implements Serializable {
 
+    private Properties props = new Properties()
 	/**
      * This constructor receives the classic PropertyResourceBundle and store
      * all Properties calling setProperty() method.
      */
 	public SerializablePropertyResourceBundle(PropertyResourceBundle rb) {
-		String key;
-		for (Enumeration e = rb.getKeys(); e.hasMoreElements() ;) {
-			key = (String)e.nextElement();
-			setProperty(key, rb.getString(key));
-		}
+
+        def keys = rb.keySet()
+        for(String key:keys) {
+            props.setProperty(key, rb.getString(key));
+        }
+
 	}
 
-	@Override
-	public String getString(String str) { 
-		return getProperty(str);
-	}
-
-	@Override
-	public String getProperty(String str) {
-		super.getProperty(str)
-	}
 
 	/**
 	 * Shortcut to get a message.properties key using 
      * $i18n.entryName notation
      */
     def propertyMissing(String name) { 
-		this.getString(name) 
+		this.props.getProperty(name)
 	}
 	
 	/**
@@ -50,7 +43,7 @@ class SerializablePropertyResourceBundle extends Properties implements Serializa
      * ${i18n.entryName(arg1, arg2, ..., argN)} notation
      */
     def methodMissing(String name, args) {
-		MessageFormat.format(this.getString(name), args)
+		MessageFormat.format(this.getProperty(name), args)
     }
 }
 
